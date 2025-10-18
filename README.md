@@ -30,6 +30,10 @@ git clone https://github.com/kaloudasdev/scientific-calculator
    - Switch between tabs for specialized functions
    - Access history panel for previous calculations
 
+## Live Preview
+
+[View Live Demo](https://kaloudasdev.github.io/scientific-calculator)
+
 ## Technical Specifications
 
 - **Frontend**: HTML5, CSS3, TypeScript
@@ -78,6 +82,12 @@ scientific-calculator/
 The application is built with modern web standards and requires no build process for production use.  
 TypeScript source is provided for development and customization.
 
+## Contact
+
+- **Email**: kaloudasdev@gmail.com
+- **GitHub**: [KaloudasDev](https://github.com/KaloudasDev)
+- **Discord**: kaloudasdev
+
 ## License
 
 MIT License - see LICENSE file for details.
@@ -86,3 +96,8 @@ MIT License - see LICENSE file for details.
 
 Professional contributions are welcome.  
 Please ensure code quality matches existing standards and includes appropriate error handling.
+
+<br>
+<br>
+
+![Scientific Calculator Interface](https://i.imgur.com/jOzq9Cy.png)
