@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<html lang="el">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Scientific Calculator</title>
+    <link rel="stylesheet" href="styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <div class="calculator-container">
+        <div class="calculator">
+            <div class="calculator-header">
+                <div class="calculator-title">
+                    <h1><i class="fas fa-calculator"></i> Scientific Calculator</h1>
+                    <div class="calculator-subtitle">Advanced Scientific Computing</div>
+                </div>
+                <div class="header-actions">
+                    <button class="theme-toggle" id="themeToggle">
+                        <i class="fas fa-moon"></i>
+                    </button>
+                    <a href="https://github.com/kaloudasdev" class="github-link" target="_blank">
+                        <i class="fab fa-github"></i>
+                    </a>
+                </div>
+            </div>
+
+            <div class="display-container">
+                <div class="expression-display" id="expressionDisplay"></div>
+                <div class="main-display">
+                    <span class="display-value" id="displayValue">0</span>
+                </div>
+                <div class="display-format">
+                    <span class="format-label" id="displayFormat">DEC</span>
+                </div>
+            </div>
+
+            <div class="status-bar">
+                <div class="status-item">
+                    <span class="status-label">Mode:</span>
+                    <span class="status-value" id="angleMode">DEG</span>
+                </div>
+                <div class="status-item">
+                    <span class="status-label">Memory:</span>
+                    <span class="status-value" id="memoryStatus">0</span>
+                </div>
+                <div class="status-item">
+                    <span class="status-label">Base:</span>
+                    <span class="status-value" id="numberBase">DEC</span>
+                </div>
+                <div class="status-item">
+                    <span class="status-label">Precision:</span>
+                    <span class="status-value" id="precision">10</span>
+                </div>
+            </div>
+
+            <div class="tabs-container">
+                <div class="tabs">
+                    <button class="tab active" data-tab="basic">Basic</button>
+                    <button class="tab" data-tab="scientific">Scientific</button>
+                    <button class="tab" data-tab="statistics">Statistics</button>
+                    <button class="tab" data-tab="programming">Programming</button>
+                </div>
+            </div>
+
+            <div class="buttons-grid" id="basicTab">
+                <button class="btn btn-memory" data-action="memoryClear">MC</button>
+                <button class="btn btn-memory" data-action="memoryRecall">MR</button>
+                <button class="btn btn-memory" data-action="memoryAdd">M+</button>
+                <button class="btn btn-memory" data-action="memorySubtract">M-</button>
+                <button class="btn btn-function" data-action="clearEntry">CE</button>
+                <button class="btn btn-function" data-action="clear">C</button>
+                <button class="btn btn-function" data-action="backspace">⌫</button>
+                <button class="btn btn-operator" data-operator="/">/</button>
+
+                <button class="btn btn-scientific" data-function="sin">sin</button>
+                <button class="btn btn-scientific" data-function="cos">cos</button>
+                <button class="btn btn-scientific" data-function="tan">tan</button>
+                <button class="btn btn-scientific" data-function="pi">π</button>
+                <button class="btn btn-number" data-number="7">7</button>
+                <button class="btn btn-number" data-number="8">8</button>
+                <button class="btn btn-number" data-number="9">9</button>
+                <button class="btn btn-operator" data-operator="*">×</button>
+
+                <button class="btn btn-scientific" data-function="asin">sin⁻¹</button>
+                <button class="btn btn-scientific" data-function="acos">cos⁻¹</button>
+                <button class="btn btn-scientific" data-function="atan">tan⁻¹</button>
+                <button class="btn btn-scientific" data-function="e">e</button>
+                <button class="btn btn-number" data-number="4">4</button>
+                <button class="btn btn-number" data-number="5">5</button>
+                <button class="btn btn-number" data-number="6">6</button>
+                <button class="btn btn-operator" data-operator="-">-</button>
+
+                <button class="btn btn-scientific" data-function="log">log</button>
+                <button class="btn btn-scientific" data-function="ln">ln</button>
+                <button class="btn btn-scientific" data-function="x2">x²</button>
+                <button class="btn btn-scientific" data-function="sqrt">√</button>
+                <button class="btn btn-number" data-number="1">1</button>
+                <button class="btn btn-number" data-number="2">2</button>
+                <button class="btn btn-number" data-number="3">3</button>
+                <button class="btn btn-operator" data-operator="+">+</button>
+
+                <button class="btn btn-scientific" data-function="power">x^y</button>
+                <button class="btn btn-scientific" data-function="factorial">x!</button>
+                <button class="btn btn-scientific" data-function="reciprocal">1/x</button>
+                <button class="btn btn-scientific" data-function="abs">|x|</button>
+                <button class="btn btn-number btn-zero" data-number="0">0</button>
+                <button class="btn btn-number" data-number=".">.</button>
+                <button class="btn btn-equals" data-action="equals">=</button>
+            </div>
+
+            <div class="buttons-grid hidden" id="scientificTab">
+                <button class="btn btn-scientific" data-function="sinh">sinh</button>
+                <button class="btn btn-scientific" data-function="cosh">cosh</button>
+                <button class="btn btn-scientific" data-function="tanh">tanh</button>
+                <button class="btn btn-scientific" data-function="log2">log₂</button>
+                <button class="btn btn-scientific" data-function="exp">e^x</button>
+                <button class="btn btn-scientific" data-function="power10">10^x</button>
+                <button class="btn btn-scientific" data-function="cube">x³</button>
+                <button class="btn btn-scientific" data-function="cbrt">∛x</button>
+
+                <button class="btn btn-scientific" data-function="asinh">sinh⁻¹</button>
+                <button class="btn btn-scientific" data-function="acosh">cosh⁻¹</button>
+                <button class="btn btn-scientific" data-function="atanh">tanh⁻¹</button>
+                <button class="btn btn-scientific" data-function="mod">mod</button>
+                <button class="btn btn-scientific" data-function="rand">RAND</button>
+                <button class="btn btn-scientific" data-function="gcd">GCD</button>
+                <button class="btn btn-scientific" data-function="lcm">LCM</button>
+                <button class="btn btn-scientific" data-function="nCr">nCr</button>
+
+                <button class="btn btn-scientific" data-function="degrees">°</button>
+                <button class="btn btn-scientific" data-function="radians">rad</button>
+                <button class="btn btn-scientific" data-function="gradians">grad</button>
+                <button class="btn btn-scientific" data-function="nPr">nPr</button>
+                <button class="btn btn-scientific" data-function="floor">floor</button>
+                <button class="btn btn-scientific" data-function="ceil">ceil</button>
+                <button class="btn btn-scientific" data-function="round">round</button>
+                <button class="btn btn-scientific" data-function="trunc">trunc</button>
+
+                <button class="btn btn-scientific" data-function="hypot">hypot</button>
+                <button class="btn btn-scientific" data-function="log1p">log1p</button>
+                <button class="btn btn-scientific" data-function="expm1">expm1</button>
+                <button class="btn btn-scientific" data-function="gamma">Γ(x)</button>
+                <button class="btn btn-scientific" data-function="erf">erf(x)</button>
+                <button class="btn btn-scientific" data-function="erfc">erfc(x)</button>
+                <button class="btn btn-scientific" data-function="zeta">ζ(x)</button>
+                <button class="btn btn-scientific" data-function="beta">B(x,y)</button>
+
+                <button class="btn btn-scientific" data-function="integrate">∫</button>
+                <button class="btn btn-scientific" data-function="derivative">d/dx</button>
+                <button class="btn btn-scientific" data-function="sigma">Σ</button>
+                <button class="btn btn-scientific" data-function="product">Π</button>
+                <button class="btn btn-scientific" data-function="limit">lim</button>
+                <button class="btn btn-scientific" data-function="solve">solve</button>
+                <button class="btn btn-scientific" data-function="matrix">matrix</button>
+                <button class="btn btn-scientific" data-function="vector">vector</button>
+            </div>
+
+            <div class="buttons-grid hidden" id="statisticsTab">
+                <button class="btn btn-scientific" data-function="mean">mean</button>
+                <button class="btn btn-scientific" data-function="median">median</button>
+                <button class="btn btn-scientific" data-function="mode">mode</button>
+                <button class="btn btn-scientific" data-function="stddev">σ</button>
+                <button class="btn btn-scientific" data-function="variance">σ²</button>
+                <button class="btn btn-scientific" data-function="correlation">corr</button>
+                <button class="btn btn-scientific" data-function="regression">reg</button>
+                <button class="btn btn-scientific" data-function="covariance">cov</button>
+
+                <button class="btn btn-scientific" data-function="normalDist">N(μ,σ)</button>
+                <button class="btn btn-scientific" data-function="tDist">t-dist</button>
+                <button class="btn btn-scientific" data-function="chi2Dist">χ²</button>
+                <button class="btn btn-scientific" data-function="fDist">F-dist</button>
+                <button class="btn btn-scientific" data-function="poissonDist">Poisson</button>
+                <button class="btn btn-scientific" data-function="binomialDist">Binomial</button>
+                <button class="btn btn-scientific" data-function="geometricDist">Geometric</button>
+                <button class="btn btn-scientific" data-function="hypergeoDist">Hypergeo</button>
+
+                <button class="btn btn-scientific" data-function="zTest">z-test</button>
+                <button class="btn btn-scientific" data-function="tTest">t-test</button>
+                <button class="btn btn-scientific" data-function="chi2Test">χ²-test</button>
+                <button class="btn btn-scientific" data-function="anova">ANOVA</button>
+                <button class="btn btn-scientific" data-function="confidence">CI</button>
+                <button class="btn btn-scientific" data-function="pValue">p-value</button>
+                <button class="btn btn-scientific" data-function="criticalValue">CV</button>
+                <button class="btn btn-scientific" data-function="mle">MLE</button>
+
+                <button class="btn btn-scientific" data-function="percentile">percentile</button>
+                <button class="btn btn-scientific" data-function="quartile">quartile</button>
+                <button class="btn btn-scientific" data-function="iqr">IQR</button>
+                <button class="btn btn-scientific" data-function="skewness">skew</button>
+                <button class="btn btn-scientific" data-function="kurtosis">kurtosis</button>
+                <button class="btn btn-scientific" data-function="moment">moment</button>
+                <button class="btn btn-scientific" data-function="entropy">H(X)</button>
+                <button class="btn btn-scientific" data-function="klDivergence">KL-div</button>
+
+                <button class="btn btn-scientific" data-function="bayes">Bayes</button>
+                <button class="btn btn-scientific" data-function="markov">Markov</button>
+                <button class="btn btn-scientific" data-function="monteCarlo">Monte Carlo</button>
+                <button class="btn btn-scientific" data-function="bootstrap">Bootstrap</button>
+                <button class="btn btn-scientific" data-function="histogram">Histogram</button>
+                <button class="btn btn-scientific" data-function="boxplot">Boxplot</button>
+                <button class="btn btn-scientific" data-function="scatter">Scatter</button>
+                <button class="btn btn-scientific" data-function="probability">P(A)</button>
+            </div>
+
+            <div class="buttons-grid hidden" id="programmingTab">
+                <button class="btn btn-scientific" data-action="setBase" data-base="bin">BIN</button>
+                <button class="btn btn-scientific" data-action="setBase" data-base="oct">OCT</button>
+                <button class="btn btn-scientific" data-action="setBase" data-base="dec">DEC</button>
+                <button class="btn btn-scientific" data-action="setBase" data-base="hex">HEX</button>
+                <button class="btn btn-scientific" data-function="bitwiseAnd">AND</button>
+                <button class="btn btn-scientific" data-function="bitwiseOr">OR</button>
+                <button class="btn btn-scientific" data-function="bitwiseXor">XOR</button>
+                <button class="btn btn-scientific" data-function="bitwiseNot">NOT</button>
+
+                <button class="btn btn-scientific" data-function="bitwiseLeftShift"><<</button>
+                <button class="btn btn-scientific" data-function="bitwiseRightShift">>></button>
+                <button class="btn btn-scientific" data-function="bitwiseZeroFillRightShift">>>></button>
+                <button class="btn btn-scientific" data-function="rotateLeft">ROL</button>
+                <button class="btn btn-scientific" data-function="rotateRight">ROR</button>
+                <button class="btn btn-scientific" data-function="countOnes">popcnt</button>
+                <button class="btn btn-scientific" data-function="parity">parity</button>
+                <button class="btn btn-scientific" data-function="reverseBits">rev</button>
+
+                <button class="btn btn-scientific" data-function="twosComplement">2's</button>
+                <button class="btn btn-scientific" data-function="onesComplement">1's</button>
+                <button class="btn btn-scientific" data-function="hammingDistance">Hamming</button>
+                <button class="btn btn-scientific" data-function="grayCode">Gray</button>
+                <button class="btn btn-scientific" data-function="isPowerOfTwo">isPow2</button>
+                <button class="btn btn-scientific" data-function="nextPowerOfTwo">nextPow2</button>
+                <button class="btn btn-scientific" data-function="logBase2">log₂</button>
+                <button class="btn btn-scientific" data-function="ilog2">ilog₂</button>
+
+                <button class="btn btn-scientific" data-function="setBit">set bit</button>
+                <button class="btn btn-scientific" data-function="clearBit">clear bit</button>
+                <button class="btn btn-scientific" data-function="toggleBit">toggle bit</button>
+                <button class="btn btn-scientific" data-function="testBit">test bit</button>
+                <button class="btn btn-scientific" data-function="extractBitfield">bitfield</button>
+                <button class="btn btn-scientific" data-function="insertBitfield">insert</button>
+                <button class="btn btn-scientific" data-function="mask">mask</button>
+                <button class="btn btn-scientific" data-function="bitScanForward">bsf</button>
+
+                <button class="btn btn-scientific" data-function="bitScanReverse">bsr</button>
+                <button class="btn btn-scientific" data-function="leadingZeros">lzcnt</button>
+                <button class="btn btn-scientific" data-function="trailingZeros">tzcnt</button>
+                <button class="btn btn-scientific" data-function="bitLength">bitlen</button>
+                <button class="btn btn-scientific" data-function="isEven">even?</button>
+                <button class="btn btn-scientific" data-function="isOdd">odd?</button>
+                <button class="btn btn-scientific" data-function="isPrime">prime?</button>
+                <button class="btn btn-scientific" data-function="nextPrime">next prime</button>
+            </div>
+
+            <div class="secondary-panel">
+                <button class="btn btn-secondary" data-action="toggleAngle">DEG/RAD/GRAD</button>
+                <button class="btn btn-secondary" data-action="toggleSign">±</button>
+                <button class="btn btn-secondary" data-action="percent">%</button>
+                <button class="btn btn-secondary" data-action="precision">Precision</button>
+                <button class="btn btn-secondary" data-action="history">History</button>
+            </div>
+
+            <div class="history-panel hidden" id="historyPanel">
+                <div class="history-header">
+                    <h3>Calculation History</h3>
+                    <button class="btn btn-secondary" id="closeHistory">Close</button>
+                </div>
+                <div class="history-list" id="historyList">
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
