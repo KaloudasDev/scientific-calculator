@@ -97,6 +97,8 @@ MIT License - see LICENSE file for details.
 Professional contributions are welcome.  
 Please ensure code quality matches existing standards and includes appropriate error handling.
 
+<br>
+
 ---
 
 <br>
