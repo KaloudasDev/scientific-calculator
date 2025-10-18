@@ -75,7 +75,8 @@ scientific-calculator/
 
 ## Development
 
-The application is built with modern web standards and requires no build process for production use. TypeScript source is provided for development and customization.
+The application is built with modern web standards and requires no build process for production use.  
+TypeScript source is provided for development and customization.
 
 ## License
 
@@ -83,6 +84,5 @@ MIT License - see LICENSE file for details.
 
 ## Contributing
 
-Professional contributions are welcome. Please ensure code quality matches existing standards and includes appropriate error handling.
-
-**Precision Engineering for Mathematical Excellence**
+Professional contributions are welcome.  
+Please ensure code quality matches existing standards and includes appropriate error handling.
