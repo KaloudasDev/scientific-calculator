@@ -1,4 +1,3 @@
-```markdown
 # Scientific Calculator
 
 A professional-grade scientific calculator web application designed for engineers, researchers, and students. Features comprehensive mathematical capabilities with an intuitive, modern interface built for precision computing.
