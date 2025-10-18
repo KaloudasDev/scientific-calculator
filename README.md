@@ -100,4 +100,4 @@ Please ensure code quality matches existing standards and includes appropriate e
 <br>
 <br>
 
-![Scientific Calculator Interface](https://i.imgur.com/jOzq9Cy.png)
+![Scientific Calculator Interface](https://i.imgur.com/Ai6tIBm.png)
