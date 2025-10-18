@@ -70,13 +70,6 @@ scientific-calculator/
 - Base conversion: `DEC ↔ BIN ↔ OCT ↔ HEX`
 - Shift operations: `<<`, `>>`, `>>>`
 
-## Browser Support
-
-- Chrome 90+
-- Firefox 88+
-- Safari 14+
-- Edge 90+
-
 ## Development
 
 The application is built with modern web standards and requires no build process for production use.  
@@ -87,10 +80,6 @@ TypeScript source is provided for development and customization.
 - **Email**: kaloudasdev@gmail.com
 - **GitHub**: [KaloudasDev](https://github.com/KaloudasDev)
 - **Discord**: kaloudasdev
-
-## License
-
-MIT License - see LICENSE file for details.
 
 ## Contributing
 
