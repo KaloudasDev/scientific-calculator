@@ -59,6 +59,9 @@
 html {
     overflow: hidden;
     height: 100%;
+    -webkit-text-size-adjust: 100%;
+    -ms-text-size-adjust: 100%;
+    text-size-adjust: 100%;
 }
 
 body {
@@ -81,6 +84,8 @@ body {
     height: 100%;
     position: fixed;
     width: 100%;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
 }
 
 [data-theme="dark"] body {
@@ -93,6 +98,9 @@ body {
     width: 100%;
     max-width: 800px;
     margin: 0 auto;
+    height: 100%;
+    display: flex;
+    align-items: center;
 }
 
 .calculator {
@@ -105,6 +113,10 @@ body {
     transition: var(--transition);
     backdrop-filter: blur(10px);
     background: var(--glass-effect);
+    width: 100%;
+    max-height: 90vh;
+    display: flex;
+    flex-direction: column;
 }
 
 .calculator::before {
@@ -122,31 +134,32 @@ body {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 24px;
+    padding: 20px 24px;
     border-bottom: 1px solid var(--border-color);
     background: var(--surface-color);
     position: relative;
     backdrop-filter: blur(10px);
+    flex-shrink: 0;
 }
 
 .calculator-title h1 {
-    font-size: 26px;
+    font-size: clamp(18px, 4vw, 26px);
     font-weight: 700;
     color: var(--text-primary);
-    margin-bottom: 6px;
+    margin-bottom: 4px;
     display: flex;
     align-items: center;
-    gap: 12px;
+    gap: 10px;
     letter-spacing: -0.5px;
 }
 
 .calculator-title h1 i {
     color: var(--primary-color);
-    font-size: 28px;
+    font-size: clamp(20px, 4vw, 28px);
 }
 
 .calculator-subtitle {
-    font-size: 14px;
+    font-size: clamp(12px, 2.5vw, 14px);
     color: var(--primary-color);
     font-weight: 500;
     letter-spacing: 0.5px;
@@ -155,7 +168,7 @@ body {
 
 .header-actions {
     display: flex;
-    gap: 12px;
+    gap: 10px;
     align-items: center;
 }
 
@@ -163,13 +176,13 @@ body {
     background: var(--background-color);
     border: 1px solid var(--border-color);
     border-radius: 12px;
-    padding: 12px;
+    padding: 10px;
     cursor: pointer;
     transition: var(--transition);
     color: var(--text-primary);
-    font-size: 16px;
-    width: 44px;
-    height: 44px;
+    font-size: 14px;
+    width: 40px;
+    height: 40px;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -210,48 +223,56 @@ body {
 }
 
 .display-container {
-    padding: 28px 24px;
+    padding: 20px 24px;
     background: var(--background-color);
     border-bottom: 1px solid var(--border-color);
     position: relative;
     backdrop-filter: blur(10px);
+    flex-shrink: 0;
 }
 
 .expression-display {
-    font-size: 15px;
+    font-size: clamp(13px, 3vw, 15px);
     color: var(--text-secondary);
-    min-height: 22px;
-    margin-bottom: 10px;
+    min-height: 20px;
+    margin-bottom: 8px;
     text-align: right;
     font-weight: 400;
     font-family: 'Courier New', monospace;
     letter-spacing: 0.5px;
+    word-break: break-all;
+    overflow-wrap: break-word;
 }
 
 .main-display {
     text-align: right;
-    margin-bottom: 10px;
+    margin-bottom: 8px;
+    min-height: 50px;
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
 }
 
 .display-value {
-    font-size: 38px;
+    font-size: clamp(24px, 6vw, 38px);
     font-weight: 700;
     color: var(--text-primary);
     word-break: break-all;
     font-family: 'Courier New', monospace;
     letter-spacing: 1px;
     line-height: 1.2;
+    overflow-wrap: break-word;
 }
 
 .display-format {
     position: absolute;
-    top: 16px;
-    left: 20px;
-    font-size: 12px;
+    top: 12px;
+    left: 16px;
+    font-size: 11px;
     color: var(--text-secondary);
     background: var(--surface-color);
-    padding: 6px 10px;
-    border-radius: 8px;
+    padding: 4px 8px;
+    border-radius: 6px;
     border: 1px solid var(--border-color);
     font-weight: 500;
 }
@@ -259,19 +280,20 @@ body {
 .status-bar {
     display: flex;
     justify-content: space-between;
-    padding: 16px 24px;
+    padding: 12px 20px;
     background: var(--background-color);
     border-bottom: 1px solid var(--border-color);
-    font-size: 13px;
+    font-size: clamp(11px, 2.5vw, 13px);
     flex-wrap: wrap;
-    gap: 20px;
+    gap: 12px;
     backdrop-filter: blur(10px);
+    flex-shrink: 0;
 }
 
 .status-item {
     display: flex;
     align-items: center;
-    gap: 6px;
+    gap: 5px;
 }
 
 .status-label {
@@ -283,45 +305,47 @@ body {
     color: var(--text-primary);
     font-weight: 600;
     background: var(--surface-color);
-    padding: 4px 10px;
-    border-radius: 8px;
+    padding: 3px 8px;
+    border-radius: 6px;
     border: 1px solid var(--border-color);
-    min-width: 50px;
+    min-width: 40px;
     text-align: center;
-    font-size: 12px;
+    font-size: 11px;
 }
 
 .tabs-container {
-    padding: 15px 24px 15px;
+    padding: 12px 20px 0;
     border-bottom: 1px solid var(--border-color);
     backdrop-filter: blur(10px);
     transform: translateY(-1px);
     position: relative;
     z-index: 5;
+    flex-shrink: 0;
 }
 
 .tabs {
     display: flex;
-    gap: 4px;
+    gap: 3px;
     background: var(--background-color);
-    border-radius: 12px;
-    padding: 6px;
+    border-radius: 10px;
+    padding: 5px;
     border: 1px solid var(--border-color);
 }
 
 .tab {
     flex: 1;
-    padding: 12px 18px;
+    padding: 10px 12px;
     border: none;
     background: transparent;
     color: var(--text-secondary);
     font-weight: 600;
     cursor: pointer;
-    border-radius: 8px;
+    border-radius: 6px;
     transition: var(--transition);
-    font-size: 13px;
+    font-size: clamp(11px, 2.5vw, 13px);
     text-align: center;
     letter-spacing: 0.3px;
+    white-space: nowrap;
 }
 
 .tab.active {
@@ -340,9 +364,12 @@ body {
 .buttons-grid {
     display: grid;
     grid-template-columns: repeat(8, 1fr);
-    gap: 10px;
-    padding: 24px;
+    gap: 8px;
+    padding: 20px;
     transition: var(--transition);
+    flex: 1;
+    overflow-y: auto;
+    min-height: 0;
 }
 
 .buttons-grid.hidden {
@@ -352,9 +379,10 @@ body {
 .secondary-panel {
     display: grid;
     grid-template-columns: repeat(5, 1fr);
-    gap: 10px;
-    padding: 0 24px 24px;
+    gap: 8px;
+    padding: 0 20px 20px;
     justify-content: center;
+    flex-shrink: 0;
 }
 
 .history-panel {
@@ -365,7 +393,7 @@ body {
     bottom: 0;
     background: var(--surface-color);
     z-index: 100;
-    padding: 24px;
+    padding: 20px;
     display: flex;
     flex-direction: column;
     border-radius: var(--border-radius);
@@ -382,15 +410,16 @@ body {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-bottom: 24px;
-    padding-bottom: 20px;
+    margin-bottom: 20px;
+    padding-bottom: 16px;
     border-bottom: 1px solid var(--border-color);
+    flex-shrink: 0;
 }
 
 .history-header h3 {
     color: var(--text-primary);
     font-weight: 700;
-    font-size: 20px;
+    font-size: clamp(16px, 4vw, 20px);
 }
 
 .history-list {
@@ -398,17 +427,19 @@ body {
     overflow-y: auto;
     display: flex;
     flex-direction: column;
-    gap: 14px;
+    gap: 12px;
+    min-height: 0;
 }
 
 .history-item {
-    padding: 16px;
+    padding: 14px;
     background: var(--background-color);
-    border-radius: 12px;
+    border-radius: 10px;
     border: 1px solid var(--border-color);
     cursor: pointer;
     transition: var(--transition);
     backdrop-filter: blur(10px);
+    flex-shrink: 0;
 }
 
 .history-item:hover {
@@ -419,31 +450,33 @@ body {
 }
 
 .history-expression {
-    font-size: 14px;
+    font-size: clamp(12px, 2.5vw, 14px);
     color: var(--text-secondary);
-    margin-bottom: 6px;
+    margin-bottom: 5px;
     font-family: 'Courier New', monospace;
+    word-break: break-all;
 }
 
 .history-result {
-    font-size: 17px;
+    font-size: clamp(14px, 3vw, 17px);
     color: var(--text-primary);
     font-weight: 700;
     font-family: 'Courier New', monospace;
+    word-break: break-all;
 }
 
 .btn {
     border: 1px solid var(--border-color);
-    border-radius: 12px;
-    padding: 14px 10px;
+    border-radius: 10px;
+    padding: 10px 6px;
     font-family: inherit;
-    font-size: 15px;
+    font-size: clamp(12px, 2.5vw, 14px);
     font-weight: 600;
     cursor: pointer;
     transition: var(--transition);
     background: var(--surface-color);
     color: var(--text-primary);
-    min-height: 52px;
+    min-height: 44px;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -454,17 +487,25 @@ body {
     -moz-user-select: none;
     -ms-user-select: none;
     user-select: none;
+    text-align: center;
+    white-space: nowrap;
+    touch-action: manipulation;
 }
 
 .btn:hover {
-    transform: translateY(-3px) scale(1.02);
-    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+    transform: translateY(-2px) scale(1.02);
+    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.12);
     border-color: var(--primary-color);
     background: var(--surface-color);
 }
 
 .btn:active {
     transform: scale(0.98);
+}
+
+.btn:focus {
+    outline: 2px solid var(--primary-color);
+    outline-offset: 2px;
 }
 
 .btn-number {
@@ -518,7 +559,7 @@ body {
     background: var(--background-color);
     color: var(--text-primary);
     border-color: var(--border-color);
-    font-size: 13px;
+    font-size: clamp(11px, 2.5vw, 13px);
     font-weight: 600;
 }
 
@@ -531,7 +572,7 @@ body {
     background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
     color: #92400e;
     border-color: #fcd34d;
-    font-size: 12px;
+    font-size: clamp(11px, 2.5vw, 12px);
     font-weight: 600;
 }
 
@@ -555,7 +596,7 @@ body {
     background: var(--background-color);
     color: var(--text-primary);
     border-color: var(--border-color);
-    font-size: 13px;
+    font-size: clamp(11px, 2.5vw, 13px);
     font-weight: 600;
 }
 
@@ -568,6 +609,7 @@ body {
     grid-column: span 2;
 }
 
+/* Responsive Design */
 @media (max-width: 1024px) {
     .buttons-grid {
         grid-template-columns: repeat(4, 1fr);
@@ -583,83 +625,92 @@ body {
 }
 
 @media (max-width: 768px) {
-    .calculator-container {
-        padding: 10px;
-    }
-    
-    .buttons-grid {
-        grid-template-columns: repeat(4, 1fr);
-        gap: 8px;
-        padding: 20px;
-    }
-    
-    .secondary-panel {
-        grid-template-columns: repeat(2, 1fr);
-        padding: 0 20px 20px;
-    }
-    
-    .display-value {
-        font-size: 32px;
-    }
-    
-    .calculator-header {
-        padding: 20px;
-    }
-    
-    .calculator-title h1 {
-        font-size: 22px;
-    }
-    
-    .btn {
-        padding: 12px 8px;
-        font-size: 14px;
-        min-height: 48px;
-    }
-    
-    .status-bar {
-        padding: 14px 20px;
-        gap: 16px;
-    }
-    
-    .tabs-container {
-        padding: 16px 20px 0;
-    }
-}
-
-@media (max-width: 480px) {
     body {
         padding: 10px;
     }
     
     .calculator-container {
         padding: 5px;
+        max-height: 95vh;
     }
     
     .buttons-grid {
         grid-template-columns: repeat(4, 1fr);
         gap: 6px;
-        padding: 16px;
+        padding: 15px;
     }
     
     .secondary-panel {
         grid-template-columns: repeat(2, 1fr);
-        gap: 8px;
-        padding: 0 16px 16px;
+        padding: 0 15px 15px;
     }
     
     .display-value {
-        font-size: 28px;
+        font-size: clamp(20px, 8vw, 28px);
+    }
+    
+    .calculator-header {
+        padding: 15px;
+    }
+    
+    .calculator-title h1 {
+        font-size: clamp(16px, 5vw, 20px);
     }
     
     .btn {
-        padding: 10px 6px;
-        font-size: 13px;
-        min-height: 44px;
+        padding: 8px 4px;
+        font-size: clamp(11px, 3vw, 13px);
+        min-height: 40px;
+    }
+    
+    .status-bar {
+        padding: 10px 15px;
+        gap: 10px;
+    }
+    
+    .tabs-container {
+        padding: 10px 15px 0;
+    }
+    
+    .display-container {
+        padding: 15px;
+    }
+}
+
+@media (max-width: 480px) {
+    body {
+        padding: 5px;
+    }
+    
+    .calculator-container {
+        padding: 2px;
+    }
+    
+    .buttons-grid {
+        grid-template-columns: repeat(4, 1fr);
+        gap: 4px;
+        padding: 10px;
+    }
+    
+    .secondary-panel {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 6px;
+        padding: 0 10px 10px;
+    }
+    
+    .display-value {
+        font-size: clamp(18px, 9vw, 24px);
+    }
+    
+    .btn {
+        padding: 6px 3px;
+        font-size: clamp(10px, 3.5vw, 12px);
+        min-height: 36px;
     }
     
     .status-bar {
         flex-direction: column;
-        gap: 12px;
+        gap: 8px;
         align-items: flex-start;
     }
     
@@ -670,12 +721,77 @@ body {
     
     .calculator-header {
         flex-direction: column;
-        gap: 16px;
+        gap: 12px;
         text-align: center;
+        padding: 12px;
     }
     
     .header-actions {
         justify-content: center;
+    }
+    
+    .tabs {
+        flex-wrap: wrap;
+    }
+    
+    .tab {
+        flex: 1 0 45%;
+        margin: 2px;
+    }
+}
+
+@media (max-width: 320px) {
+    .buttons-grid {
+        grid-template-columns: repeat(4, 1fr);
+        gap: 3px;
+        padding: 8px;
+    }
+    
+    .btn {
+        min-height: 32px;
+        font-size: 10px;
+        padding: 4px 2px;
+    }
+    
+    .secondary-panel {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 4px;
+        padding: 0 8px 8px;
+    }
+}
+
+/* Orientation-specific styles */
+@media (max-height: 600px) and (orientation: landscape) {
+    .calculator-container {
+        max-height: 98vh;
+    }
+    
+    .buttons-grid {
+        grid-template-columns: repeat(8, 1fr);
+        gap: 4px;
+        padding: 8px;
+    }
+    
+    .btn {
+        min-height: 30px;
+        font-size: 10px;
+        padding: 4px 2px;
+    }
+    
+    .calculator-header {
+        padding: 8px 12px;
+    }
+    
+    .display-container {
+        padding: 8px 12px;
+    }
+    
+    .status-bar {
+        padding: 6px 12px;
+    }
+    
+    .tabs-container {
+        padding: 6px 12px 0;
     }
 }
 
@@ -687,10 +803,6 @@ body {
 
 .btn.pressed {
     animation: buttonPress 0.15s ease;
-}
-
-.btn:focus {
-    outline: none;
 }
 
 @keyframes fadeIn {
@@ -724,17 +836,17 @@ body {
 }
 
 .history-list::-webkit-scrollbar {
-    width: 8px;
+    width: 6px;
 }
 
 .history-list::-webkit-scrollbar-track {
     background: var(--background-color);
-    border-radius: 4px;
+    border-radius: 3px;
 }
 
 .history-list::-webkit-scrollbar-thumb {
     background: var(--primary-color);
-    border-radius: 4px;
+    border-radius: 3px;
 }
 
 .history-list::-webkit-scrollbar-thumb:hover {
@@ -751,4 +863,38 @@ body {
 
 .hidden {
     display: none !important;
+}
+
+/* Safe area insets for modern mobile devices */
+@supports(padding: max(0px)) {
+    .calculator-container {
+        padding-left: max(20px, env(safe-area-inset-left));
+        padding-right: max(20px, env(safe-area-inset-right));
+        padding-bottom: max(20px, env(safe-area-inset-bottom));
+    }
+}
+
+/* High contrast mode support */
+@media (prefers-contrast: high) {
+    :root {
+        --border-color: #000000;
+        --shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
+    }
+    
+    .btn {
+        border-width: 2px;
+    }
+}
+
+/* Reduced motion support */
+@media (prefers-reduced-motion: reduce) {
+    * {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+    }
+    
+    .btn:hover {
+        transform: none;
+    }
 }

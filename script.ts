@@ -10,6 +10,7 @@ interface CalculatorState {
     precision: number;
     history: HistoryItem[];
     currentTab: string;
+    lastInput: string | null;
 }
 
 interface HistoryItem {
@@ -43,7 +44,8 @@ class ScientificCalculator {
             numberBase: 'dec',
             precision: 10,
             history: [],
-            currentTab: 'basic'
+            currentTab: 'basic',
+            lastInput: null
         };
 
         this.initializeElements();
@@ -65,43 +67,35 @@ class ScientificCalculator {
     }
     
     private disableZoom(): void {
+        const preventDefault = (e: Event) => {
+            e.preventDefault();
+            return false;
+        };
+        
         document.addEventListener('wheel', (e) => {
-            if (e.ctrlKey) {
-                e.preventDefault();
-                return false;
+            if ((e as WheelEvent).ctrlKey) {
+                preventDefault(e);
             }
         }, { passive: false });
         
         document.addEventListener('touchstart', (e) => {
-            if (e.touches.length > 1) {
-                e.preventDefault();
-                return false;
+            if ((e as TouchEvent).touches.length > 1) {
+                preventDefault(e);
             }
         }, { passive: false });
-        
-        document.addEventListener('gesturestart', (e) => {
-            e.preventDefault();
-            return false;
-        });
-        
-        document.addEventListener('gesturechange', (e) => {
-            e.preventDefault();
-            return false;
-        });
-        
-        document.addEventListener('gestureend', (e) => {
-            e.preventDefault();
-            return false;
-        });
         
         let lastTouchEnd = 0;
         document.addEventListener('touchend', (e) => {
             const now = (new Date()).getTime();
             if (now - lastTouchEnd <= 300) {
-                e.preventDefault();
+                preventDefault(e);
             }
             lastTouchEnd = now;
         }, false);
+        
+        document.addEventListener('gesturestart', preventDefault);
+        document.addEventListener('gesturechange', preventDefault);
+        document.addEventListener('gestureend', preventDefault);
     }
 
     private initializeElements(): void {
@@ -118,79 +112,123 @@ class ScientificCalculator {
     }
 
     private bindEvents(): void {
-        document.querySelectorAll('[data-number]').forEach(btn => {
+        const safeQuerySelectorAll = (selector: string): NodeListOf<Element> => {
+            try {
+                return document.querySelectorAll(selector);
+            } catch (e) {
+                console.warn('Invalid selector:', selector);
+                return new NodeList();
+            }
+        };
+
+        safeQuerySelectorAll('[data-number]').forEach(btn => {
             btn.addEventListener('click', (e) => {
-                const target = e.target as HTMLButtonElement;
-                this.inputNumber(target.dataset.number!);
+                const target = (e.target as Element).closest('[data-number]');
+                if (target && (target as HTMLElement).dataset.number) {
+                    this.inputNumber((target as HTMLElement).dataset.number!);
+                }
             });
         });
 
-        document.querySelectorAll('[data-operator]').forEach(btn => {
+        safeQuerySelectorAll('[data-operator]').forEach(btn => {
             btn.addEventListener('click', (e) => {
-                const target = e.target as HTMLButtonElement;
-                this.inputOperator(target.dataset.operator!);
+                const target = (e.target as Element).closest('[data-operator]');
+                if (target && (target as HTMLElement).dataset.operator) {
+                    this.inputOperator((target as HTMLElement).dataset.operator!);
+                }
             });
         });
 
-        document.querySelectorAll('[data-action]').forEach(btn => {
+        safeQuerySelectorAll('[data-action]').forEach(btn => {
             btn.addEventListener('click', (e) => {
-                const target = e.target as HTMLButtonElement;
-                this.handleAction(target.dataset.action!, target.dataset.base);
+                const target = (e.target as Element).closest('[data-action]');
+                if (target && (target as HTMLElement).dataset.action) {
+                    this.handleAction((target as HTMLElement).dataset.action!, (target as HTMLElement).dataset.base);
+                }
             });
         });
 
-        document.querySelectorAll('[data-function]').forEach(btn => {
+        safeQuerySelectorAll('[data-function]').forEach(btn => {
             btn.addEventListener('click', (e) => {
-                const target = e.target as HTMLButtonElement;
-                this.handleScientific(target.dataset.function!);
+                const target = (e.target as Element).closest('[data-function]');
+                if (target && (target as HTMLElement).dataset.function) {
+                    this.handleScientific((target as HTMLElement).dataset.function!);
+                }
             });
         });
 
-        document.querySelectorAll('[data-tab]').forEach(tab => {
+        safeQuerySelectorAll('[data-tab]').forEach(tab => {
             tab.addEventListener('click', (e) => {
-                const target = e.target as HTMLButtonElement;
-                this.switchTab(target.dataset.tab!);
+                const target = (e.target as Element).closest('[data-tab]');
+                if (target && (target as HTMLElement).dataset.tab) {
+                    this.switchTab((target as HTMLElement).dataset.tab!);
+                }
             });
         });
 
-        this.themeToggle.addEventListener('click', () => {
-            this.toggleTheme();
-        });
+        if (this.themeToggle) {
+            this.themeToggle.addEventListener('click', () => {
+                this.toggleTheme();
+            });
+        }
 
-        document.getElementById('closeHistory')!.addEventListener('click', () => {
-            this.historyPanel.classList.add('hidden');
-        });
+        const closeHistory = document.getElementById('closeHistory');
+        if (closeHistory) {
+            closeHistory.addEventListener('click', () => {
+                this.historyPanel.classList.add('hidden');
+            });
+        }
 
         document.addEventListener('keydown', (e) => this.handleKeyboard(e));
+        
+        window.addEventListener('beforeunload', () => {
+            this.cleanup();
+        });
+    }
+
+    private cleanup(): void {
+        document.removeEventListener('keydown', this.handleKeyboard.bind(this));
     }
 
     private inputNumber(num: string): void {
-        if (this.state.shouldResetInput || this.state.currentValue === '0') {
+        if (this.state.shouldResetInput || this.state.currentValue === '0' || this.state.currentValue === 'Error') {
             this.state.currentValue = num;
             this.state.shouldResetInput = false;
         } else {
             if (num === '.' && this.state.currentValue.includes('.')) {
                 return;
             }
-            this.state.currentValue += num;
+            if (this.state.currentValue.length < 50) {
+                this.state.currentValue += num;
+            }
         }
-        
+        this.state.lastInput = 'number';
         this.updateDisplay();
         this.animateButton(`[data-number="${num}"]`);
     }
 
     private inputOperator(operator: string): void {
-        if (this.state.expression !== '' && !this.state.shouldResetInput) {
-            this.calculate();
+        if (this.state.currentValue === 'Error') {
+            this.clear();
+            return;
         }
 
+        if (this.state.expression !== '' && !this.state.shouldResetInput && this.state.lastInput !== 'operator') {
+            this.calculate();
+        }
+        
         this.state.expression = this.state.currentValue + ' ' + operator + ' ';
         this.state.shouldResetInput = true;
+        this.state.lastInput = 'operator';
         this.updateDisplay();
         this.animateButton(`[data-operator="${operator}"]`);
     }
 
     private handleAction(action: string, base?: string): void {
+        if (this.state.currentValue === 'Error' && action !== 'clear' && action !== 'clearEntry') {
+            return;
+        }
+
         switch (action) {
             case 'clear':
                 this.clear();
@@ -235,33 +273,43 @@ class ScientificCalculator {
                 if (base) this.setNumberBase(base as 'bin' | 'oct' | 'dec' | 'hex');
                 break;
         }
-        
+        this.state.lastInput = 'action';
         this.animateButton(`[data-action="${action}"]`);
     }
 
     private handleScientific(func: string): void {
+        if (this.state.currentValue === 'Error') {
+            return;
+        }
+
         const value = this.parseCurrentValue();
-        
+        if (isNaN(value)) {
+            this.showError('Invalid input');
+            return;
+        }
+
         try {
             let result: number;
             let expression: string;
-
+            
             switch (func) {
                 case 'sin':
-                    result = this.toRadians(value);
-                    result = Math.sin(result);
+                    result = Math.sin(this.toRadians(value));
                     expression = `sin(${value})`;
                     break;
                     
                 case 'cos':
-                    result = this.toRadians(value);
-                    result = Math.cos(result);
+                    result = Math.cos(this.toRadians(value));
                     expression = `cos(${value})`;
                     break;
                     
                 case 'tan':
-                    result = this.toRadians(value);
-                    result = Math.tan(result);
+                    const tanVal = this.toRadians(value);
+                    if (Math.abs(Math.cos(tanVal)) < 1e-10) {
+                        this.showError('Math error: Undefined tangent');
+                        return;
+                    }
+                    result = Math.tan(tanVal);
                     expression = `tan(${value})`;
                     break;
                     
@@ -270,8 +318,7 @@ class ScientificCalculator {
                         this.showError('Domain error: Input must be between -1 and 1');
                         return;
                     }
-                    result = Math.asin(value);
-                    result = this.fromRadians(result);
+                    result = this.fromRadians(Math.asin(value));
                     expression = `sin⁻¹(${value})`;
                     break;
                     
@@ -280,14 +327,12 @@ class ScientificCalculator {
                         this.showError('Domain error: Input must be between -1 and 1');
                         return;
                     }
-                    result = Math.acos(value);
-                    result = this.fromRadians(result);
+                    result = this.fromRadians(Math.acos(value));
                     expression = `cos⁻¹(${value})`;
                     break;
                     
                 case 'atan':
-                    result = Math.atan(value);
-                    result = this.fromRadians(result);
+                    result = this.fromRadians(Math.atan(value));
                     expression = `tan⁻¹(${value})`;
                     break;
                     
@@ -397,16 +442,16 @@ class ScientificCalculator {
                     break;
                     
                 case 'factorial':
-                    if (!Number.isInteger(value) || value < 0) {
-                        this.showError('Domain error: Input must be non-negative integer');
+                    if (!Number.isInteger(value) || value < 0 || value > 170) {
+                        this.showError('Domain error: Input must be integer between 0 and 170');
                         return;
                     }
                     result = this.factorial(value);
-                    expression = `factorial(${value})`;
+                    expression = `${value}!`;
                     break;
                     
                 case 'reciprocal':
-                    if (value === 0) {
+                    if (Math.abs(value) < 1e-15) {
                         this.showError('Math error: Division by zero');
                         return;
                     }
@@ -520,6 +565,10 @@ class ScientificCalculator {
                     break;
                     
                 case 'gamma':
+                    if (value <= 0 || value > 170) {
+                        this.showError('Domain error: Input must be positive and <= 170');
+                        return;
+                    }
                     result = this.gammaFunction(value);
                     expression = `Γ(${value})`;
                     break;
@@ -532,16 +581,6 @@ class ScientificCalculator {
                 case 'erfc':
                     result = 1 - this.errorFunction(value);
                     expression = `erfc(${value})`;
-                    break;
-                    
-                case 'mean':
-                    this.state.expression = 'mean(' + this.state.currentValue + ')';
-                    result = value;
-                    break;
-                    
-                case 'median':
-                    this.state.expression = 'median(' + this.state.currentValue + ')';
-                    result = value;
                     break;
                     
                 case 'bitwiseAnd':
@@ -557,13 +596,18 @@ class ScientificCalculator {
                     return;
                     
                 case 'bitwiseXor':
-                    this.state.expression = this.state.currentValue + ' ^ ';
+                    this.state.expression = this.state.currentValue + ' XOR ';
                     this.state.shouldResetInput = true;
                     this.updateDisplay();
                     return;
                     
                 case 'bitwiseNot':
-                    result = ~this.parseCurrentValueAsInt();
+                    const intVal = this.parseCurrentValueAsInt();
+                    if (isNaN(intVal)) {
+                        this.showError('Invalid input for bitwise operation');
+                        return;
+                    }
+                    result = ~intVal;
                     expression = `~${value}`;
                     break;
                     
@@ -589,13 +633,20 @@ class ScientificCalculator {
                     this.showError(`Function ${func} not implemented yet`);
                     return;
             }
-            
+
+            if (!isFinite(result)) {
+                this.showError('Math error: Result too large or undefined');
+                return;
+            }
+
             this.state.currentValue = this.formatNumber(result);
             this.state.expression = expression;
             this.state.shouldResetInput = true;
+            this.state.lastInput = 'function';
             this.updateDisplay();
             
         } catch (error) {
+            console.error('Scientific function error:', error);
             this.showError('Calculation error');
         }
         
@@ -603,31 +654,55 @@ class ScientificCalculator {
     }
 
     private calculate(): void {
-        if (this.state.expression === '') return;
+        if (this.state.expression === '' || this.state.currentValue === 'Error') {
+            return;
+        }
 
         try {
             let expr = this.state.expression + this.state.currentValue;
             
             expr = expr.replace(/×/g, '*')
-                      .replace(/÷/g, '/')
+                      .replace(/\//g, '/')
                       .replace(/mod/g, '%')
+                      .replace(/\^/g, '**')
                       .replace(/gcd/g, 'this.gcd')
                       .replace(/lcm/g, 'this.lcm')
                       .replace(/nCr/g, 'this.nCr')
                       .replace(/nPr/g, 'this.nPr')
-                      .replace(/hypot/g, 'Math.hypot');
+                      .replace(/hypot/g, 'Math.hypot')
+                      .replace(/XOR/g, '^');
             
-            let result = eval(expr);
+            const sanitizedExpr = this.sanitizeExpression(expr);
+            const result = this.safeEval(sanitizedExpr);
             
+            if (!isFinite(result)) {
+                this.showError('Math error: Result too large or undefined');
+                return;
+            }
+
             this.addToHistory(this.state.expression + this.state.currentValue, result);
             
             this.state.expression += this.state.currentValue + ' = ';
             this.state.currentValue = this.formatNumber(result);
             this.state.shouldResetInput = true;
+            this.state.lastInput = 'equals';
             this.updateDisplay();
             
         } catch (error) {
+            console.error('Calculation error:', error);
             this.showError('Syntax error');
+        }
+    }
+
+    private sanitizeExpression(expr: string): string {
+        return expr.replace(/[^0-9+\-*/().\s]/g, '');
+    }
+
+    private safeEval(expr: string): number {
+        try {
+            return Function('"use strict"; return (' + expr + ')')();
+        } catch (e) {
+            throw new Error('Invalid expression');
         }
     }
 
@@ -635,30 +710,39 @@ class ScientificCalculator {
         this.state.currentValue = '0';
         this.state.expression = '';
         this.state.shouldResetInput = false;
+        this.state.lastInput = null;
         this.updateDisplay();
     }
 
     private clearEntry(): void {
         this.state.currentValue = '0';
+        this.state.lastInput = null;
         this.updateDisplay();
     }
 
     private backspace(): void {
+        if (this.state.currentValue === 'Error') {
+            this.clear();
+            return;
+        }
+        
         if (this.state.currentValue.length > 1 && this.state.currentValue !== '0') {
             this.state.currentValue = this.state.currentValue.slice(0, -1);
         } else {
             this.state.currentValue = '0';
         }
+        this.state.lastInput = 'backspace';
         this.updateDisplay();
     }
 
     private toggleSign(): void {
-        if (this.state.currentValue !== '0') {
+        if (this.state.currentValue !== '0' && this.state.currentValue !== 'Error') {
             if (this.state.currentValue.startsWith('-')) {
                 this.state.currentValue = this.state.currentValue.slice(1);
             } else {
                 this.state.currentValue = '-' + this.state.currentValue;
             }
+            this.state.lastInput = 'sign';
             this.updateDisplay();
         }
     }
@@ -666,6 +750,7 @@ class ScientificCalculator {
     private percent(): void {
         const value = this.parseCurrentValue();
         this.state.currentValue = (value / 100).toString();
+        this.state.lastInput = 'percent';
         this.updateDisplay();
     }
 
@@ -705,8 +790,12 @@ class ScientificCalculator {
 
     private convertToBase(base: 'bin' | 'oct' | 'dec' | 'hex'): void {
         const value = this.parseCurrentValueAsInt();
-        let newValue: string;
+        if (isNaN(value)) {
+            this.showError('Invalid input for base conversion');
+            return;
+        }
         
+        let newValue: string;
         switch (base) {
             case 'bin':
                 newValue = value.toString(2);
@@ -723,7 +812,6 @@ class ScientificCalculator {
             default:
                 newValue = value.toString(10);
         }
-        
         this.state.currentValue = newValue;
         this.updateDisplay();
     }
@@ -755,12 +843,12 @@ class ScientificCalculator {
     private renderHistory(): void {
         this.historyList.innerHTML = '';
         
-        this.state.history.forEach((item, index) => {
+        this.state.history.forEach((item) => {
             const historyItem = document.createElement('div');
             historyItem.className = 'history-item';
             historyItem.innerHTML = `
-                <div class="history-expression">${item.expression}</div>
-                <div class="history-result">${item.result}</div>
+                <div class="history-expression">${this.escapeHtml(item.expression)}</div>
+                <div class="history-result">${this.escapeHtml(item.result)}</div>
             `;
             
             historyItem.addEventListener('click', () => {
@@ -771,6 +859,12 @@ class ScientificCalculator {
             
             this.historyList.appendChild(historyItem);
         });
+    }
+
+    private escapeHtml(text: string): string {
+        const div = document.createElement('div');
+        div.textContent = text;
+        return div.innerHTML;
     }
 
     private toggleTheme(): void {
@@ -785,58 +879,92 @@ class ScientificCalculator {
     }
 
     private updateThemeIcon(): void {
+        if (!this.themeToggle) return;
+        
         const icon = this.themeToggle.querySelector('i') as HTMLElement;
-        if (this.state.currentTheme === 'light') {
-            icon.className = 'fas fa-sun';
-        } else {
-            icon.className = 'fas fa-moon';
+        if (icon) {
+            if (this.state.currentTheme === 'light') {
+                icon.className = 'fas fa-sun';
+            } else {
+                icon.className = 'fas fa-moon';
+            }
         }
     }
 
     private loadTheme(): void {
-        const savedTheme = localStorage.getItem('calculatorTheme') as 'light' | 'dark' | null;
-        if (savedTheme) {
-            this.state.currentTheme = savedTheme;
+        try {
+            const savedTheme = localStorage.getItem('calculatorTheme') as 'light' | 'dark' | null;
+            if (savedTheme && (savedTheme === 'light' || savedTheme === 'dark')) {
+                this.state.currentTheme = savedTheme;
+            }
+        } catch (e) {
+            console.warn('Failed to load theme from localStorage');
         }
         this.applyTheme();
         this.updateThemeIcon();
     }
 
     private saveTheme(): void {
-        localStorage.setItem('calculatorTheme', this.state.currentTheme);
+        try {
+            localStorage.setItem('calculatorTheme', this.state.currentTheme);
+        } catch (e) {
+            console.warn('Failed to save theme to localStorage');
+        }
     }
 
     private loadHistory(): void {
-        const savedHistory = localStorage.getItem('calculatorHistory');
-        if (savedHistory) {
-            this.state.history = JSON.parse(savedHistory);
+        try {
+            const savedHistory = localStorage.getItem('calculatorHistory');
+            if (savedHistory) {
+                const history = JSON.parse(savedHistory);
+                if (Array.isArray(history)) {
+                    this.state.history = history.slice(0, 50);
+                }
+            }
+        } catch (e) {
+            console.warn('Failed to load history from localStorage');
         }
     }
 
     private saveHistory(): void {
-        localStorage.setItem('calculatorHistory', JSON.stringify(this.state.history));
+        try {
+            localStorage.setItem('calculatorHistory', JSON.stringify(this.state.history));
+        } catch (e) {
+            console.warn('Failed to save history to localStorage');
+        }
     }
 
     private switchTab(tabName: string): void {
         this.state.currentTab = tabName;
         
-        document.querySelectorAll('.tab').forEach(tab => {
+        const tabs = document.querySelectorAll('.tab');
+        const targetTab = document.querySelector(`[data-tab="${tabName}"]`);
+        const targetGrid = document.getElementById(tabName + 'Tab');
+        
+        if (!targetTab || !targetGrid) {
+            console.warn('Tab or grid not found:', tabName);
+            return;
+        }
+        
+        tabs.forEach(tab => {
             tab.classList.remove('active');
         });
-        document.querySelector(`[data-tab="${tabName}"]`)!.classList.add('active');
+        targetTab.classList.add('active');
         
         document.querySelectorAll('.buttons-grid').forEach(grid => {
             grid.classList.add('hidden');
         });
-        document.getElementById(tabName + 'Tab')!.classList.remove('hidden');
+        targetGrid.classList.remove('hidden');
     }
 
     private parseCurrentValue(): number {
-        return parseFloat(this.state.currentValue);
+        const value = parseFloat(this.state.currentValue);
+        return isNaN(value) ? 0 : value;
     }
 
     private parseCurrentValueAsInt(): number {
-        return parseInt(this.state.currentValue, 10);
+        const value = parseInt(this.state.currentValue, 10);
+        return isNaN(value) ? 0 : value;
     }
 
     private toRadians(value: number): number {
@@ -873,43 +1001,21 @@ class ScientificCalculator {
     }
 
     private gammaFunction(x: number): number {
-        const p = [
-            0.99999999999980993, 676.5203681218851, -1259.1392167224028,
-            771.32342877765313, -176.61502916214059, 12.507343278686905,
-            -0.13857109526572012, 9.9843695780195716e-6, 1.5056327351493116e-7
-        ];
-        
-        let g = 7;
-        if (x < 0.5) {
-            return Math.PI / (Math.sin(Math.PI * x) * this.gammaFunction(1 - x));
-        }
-        
-        x -= 1;
-        let a = p[0];
-        let t = x + g + 0.5;
-        
-        for (let i = 1; i < p.length; i++) {
-            a += p[i] / (x + i);
-        }
-        
-        return Math.sqrt(2 * Math.PI) * Math.pow(t, x + 0.5) * Math.exp(-t) * a;
+        if (x === 1) return 1;
+        if (x === 0.5) return Math.sqrt(Math.PI);
+        return this.factorial(x - 1);
     }
 
     private errorFunction(x: number): number {
-        const a1 =  0.254829592;
+        const t = 1.0 / (1.0 + 0.3275911 * Math.abs(x));
+        const a1 = 0.254829592;
         const a2 = -0.284496736;
-        const a3 =  1.421413741;
+        const a3 = 1.421413741;
         const a4 = -1.453152027;
-        const a5 =  1.061405429;
-        const p  =  0.3275911;
-
-        const sign = (x < 0) ? -1 : 1;
-        x = Math.abs(x);
-
-        const t = 1.0 / (1.0 + p * x);
-        const y = 1.0 - (((((a5 * t + a4) * t) + a3) * t + a2) * t + a1) * t * Math.exp(-x * x);
-
-        return sign * y;
+        const a5 = 1.061405429;
+        
+        const result = 1.0 - (((((a5 * t + a4) * t + a3) * t + a2) * t + a1) * t * Math.exp(-x * x));
+        return x >= 0 ? result : -result;
     }
 
     private gcd(a: number, b: number): number {
@@ -948,11 +1054,20 @@ class ScientificCalculator {
     }
 
     private formatNumber(num: number): string {
-        if (Math.abs(num) > 1e15 || (Math.abs(num) < 1e-6 && num !== 0)) {
-            return num.toExponential(this.state.precision - 1);
+        if (typeof num !== 'number' || isNaN(num)) {
+            return 'Error';
         }
         
-        return parseFloat(num.toFixed(this.state.precision)).toString();
+        if (!isFinite(num)) {
+            return num > 0 ? 'Infinity' : '-Infinity';
+        }
+        
+        if (Math.abs(num) > 1e15 || (Math.abs(num) < 1e-6 && num !== 0)) {
+            return num.toExponential(Math.max(1, this.state.precision - 1));
+        }
+        
+        const fixed = num.toFixed(this.state.precision);
+        return parseFloat(fixed).toString();
     }
 
     private showError(message: string): void {
@@ -961,39 +1076,63 @@ class ScientificCalculator {
         this.updateDisplay();
         
         setTimeout(() => {
-            this.clear();
-        }, 2000);
+            if (this.state.currentValue === 'Error') {
+                this.clear();
+            }
+        }, 3000);
     }
 
     private animateButton(selector: string): void {
-        const button = document.querySelector(selector) as HTMLButtonElement;
-        if (button) {
-            button.classList.add('pressed');
-            setTimeout(() => {
-                button.classList.remove('pressed');
-            }, 150);
+        try {
+            const button = document.querySelector(selector) as HTMLButtonElement;
+            if (button) {
+                button.classList.add('pressed');
+                setTimeout(() => {
+                    button.classList.remove('pressed');
+                }, 150);
+            }
+        } catch (e) {
+            console.warn('Button animation failed for selector:', selector);
         }
     }
 
     private updateDisplay(): void {
-        this.displayElement.textContent = this.state.currentValue;
-        this.expressionElement.textContent = this.state.expression;
+        if (this.displayElement) {
+            this.displayElement.textContent = this.state.currentValue;
+        }
+        if (this.expressionElement) {
+            this.expressionElement.textContent = this.state.expression;
+        }
     }
 
     private updateStatusBar(): void {
-        this.angleModeElement.textContent = this.state.angleMode.toUpperCase();
-        this.memoryElement.textContent = this.formatNumber(this.state.memory);
-        this.numberBaseElement.textContent = this.state.numberBase.toUpperCase();
-        this.precisionElement.textContent = this.state.precision.toString();
+        if (this.angleModeElement) {
+            this.angleModeElement.textContent = this.state.angleMode.toUpperCase();
+        }
+        if (this.memoryElement) {
+            this.memoryElement.textContent = this.formatNumber(this.state.memory);
+        }
+        if (this.numberBaseElement) {
+            this.numberBaseElement.textContent = this.state.numberBase.toUpperCase();
+        }
+        if (this.precisionElement) {
+            this.precisionElement.textContent = this.state.precision.toString();
+        }
     }
 
     private updateDisplayFormat(): void {
-        this.displayFormatElement.textContent = this.state.numberBase.toUpperCase();
+        if (this.displayFormatElement) {
+            this.displayFormatElement.textContent = this.state.numberBase.toUpperCase();
+        }
     }
 
     private handleKeyboard(event: KeyboardEvent): void {
         const key = event.key;
         
+        if (event.ctrlKey || event.altKey || event.metaKey) {
+            return;
+        }
+
         if ('0123456789.+-*/=EnterEscapeBackspace%'.includes(key)) {
             event.preventDefault();
         }
@@ -1030,5 +1169,10 @@ class ScientificCalculator {
 }
 
 document.addEventListener('DOMContentLoaded', () => {
-    new ScientificCalculator();
+    try {
+        new ScientificCalculator();
+    } catch (error) {
+        console.error('Failed to initialize calculator:', error);
+        alert('Sorry, the calculator failed to load. Please refresh the page.');
+    }
 });
